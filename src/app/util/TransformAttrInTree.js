@@ -2,37 +2,23 @@
 
 
 const TransformAttrInTree = (name, obj) => {
-  var item = {}
   let keys = Object.keys(obj);
-  let teste = [];
 
-  const AddToObject = (name,value) => {
-    let [current] = name.split('@');
-    let nextLevel = name.replace(`${current}@`,'');
-    
-    if(nextLevel.includes('@')){
-      let childs = AddToObject(nextLevel, value );
-
-      // console.log("A", current, nextLevel);
-    }
-    else{
-      item = {
-        // ...{...item[current]},
-        [current]: { 
-          ...item[current],
-          [nextLevel]: value,
-        }
+  let ret = {};
+  for (let index = 0; index < keys.length; index++) {
+    const _keys = keys[index].split('@');
+    let q = ''
+    for (let index2 = 0; index2 < _keys.length; index2++) {
+      const k = _keys[index2];
+      q += `['${k}']`
+      eval(`ret${q} = ret${q} ? ret${q} : {}`)
+      if(index2 == _keys.length - 1) {
+        eval(`ret${q} = obj[keys[index]]`)
       }
-
     }
   }
+  return ret;
 
-  keys.map((key, i)=> {
-    AddToObject(key,obj[key], item);
-
-  })
-
-  return item;
 }
 
 export default TransformAttrInTree

@@ -21,22 +21,22 @@ class TranslateController{
     dictionary = DestructObjectInAttr(req.body);
     let stringToTranslate = Object.values(dictionary).join(' | ')
 
+    const promises = languages.map(async(language, index) => {
+      const [translated] = await translate.translate(stringToTranslate, language);
+      return new Promise(resolve => {
+        let translatedItem = {}
 
-    languages.forEach(async (language, index ) => {
-      if(index == 0) return;
-      //descomentar quando resolver o problema;
-      // let [translated] = await translate.translate(stringToTranslate, language);
-      let translated = 'Nombre 2 | Edad | Ciudad | Artículo uno'
-      
-      let translatedItem = {}
-      Object.keys(dictionary).forEach((item, index) => {
-        translatedItem[item] = translated.split('|')[index].trim();
-      });
-      
-      languageDictionaryTranslated[language] = TransformAttrInTree(null, translatedItem );
-      // languageDictionaryTranslated[language] = translatedItem;
-    });
+        Object.keys(dictionary).forEach((item, index) => {
+          translatedItem[item] = translated.split('|')[index].trim();
+        });
 
+        languageDictionaryTranslated[language] = TransformAttrInTree(null, translatedItem);
+
+        resolve();
+      })
+    })
+
+    await Promise.all(promises);
     res.json(languageDictionaryTranslated);
   }
 }
